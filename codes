@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+string decrypt(const string& ciphertext, const string& key) {
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+    string decrypted_text = ciphertext;
+
+    for (size_t i = 0; i < ciphertext.size(); i++) {
+        size_t pos = key.find(ciphertext[i]);
+        if (pos != string::npos) {
+            decrypted_text[i] = alphabet[pos];
+        }
+    }
+
+    return decrypted_text;
+}
+
+void brute_force_monoalphabetic(const string& ciphertext) {
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+    vector<char> perm(alphabet.begin(), alphabet.end());
+
+    do {
+        string key(perm.begin(), perm.end());
+        string decrypted_text = decrypt(ciphertext, key);
+        cout << "Possible Decryption: " << decrypted_text << endl;
+    } while (next_permutation(perm.begin(), perm.end()));
+}
+
+int main() {
+    string encrypted_message;
+    cout << "Enter the encrypted message: ";
+    cin >> encrypted_message;
+
+    brute_force_monoalphabetic(encrypted_message);
+    return 0;
+}
