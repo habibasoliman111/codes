@@ -1,0 +1,76 @@
+#include <iostream>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <cctype>
+
+using namespace std;
+
+const string ENGLISH_FREQ_ORDER = "ETAOINSHRDLCUMWFGYPBVKJXQZ";
+
+map<char, int> frequencyAnalysis(const string &ciphertext) {
+    map<char, int> freq;
+    for (char c : ciphertext) {
+        if (isalpha(c)) {
+            freq[toupper(c)]++;
+        }
+    }
+    return freq;
+}
+
+map<char, char> createSubstitutionMap(const map<char, int> &freq) {
+    vector<pair<char, int>> sortedFreq(freq.begin(), freq.end());
+    sort(sortedFreq.begin(), sortedFreq.end(), [](const pair<char, int> &a, const pair<char, int> &b) {
+        return a.second > b.second;
+    });
+
+    map<char, char> substitution;
+    for (size_t i = 0; i < sortedFreq.size() && i < ENGLISH_FREQ_ORDER.size(); i++) {
+        substitution[sortedFreq[i].first] = ENGLISH_FREQ_ORDER[i];
+    }
+    return substitution;
+}
+
+string decrypt(const string &ciphertext, const map<char, char> &substitution) {
+    string result;
+    for (char c : ciphertext) {
+        if (isalpha(c)) {
+            char upperC = toupper(c);
+            char decrypted = substitution.count(upperC) ? substitution.at(upperC) : '?';
+            result += islower(c) ? tolower(decrypted) : decrypted;
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+int main() {
+    string ciphertext;
+    cout << "Enter the encrypted message: ";
+    getline(cin, ciphertext);
+
+    if (ciphertext.empty()) {
+        cout << "Error: Empty ciphertext." << endl;
+        return 1;
+    }
+
+    map<char, int> freq = frequencyAnalysis(ciphertext);
+
+    if (freq.empty()) {
+        cout << "Error: No alphabetic characters found in ciphertext." << endl;
+        return 1;
+    }
+
+    map<char, char> substitution = createSubstitutionMap(freq);
+    string decryptedText = decrypt(ciphertext, substitution);
+
+    cout << "\nCiphertext: " << ciphertext << endl;
+    cout << "Decryption Map:\n";
+    for (const auto &p : substitution) {
+        cout << p.first << " -> " << p.second << endl;
+    }
+    cout << "Decrypted Text: " << decryptedText << endl;
+
+    return 0;
+}
